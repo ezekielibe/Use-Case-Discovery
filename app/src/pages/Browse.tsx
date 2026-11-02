@@ -1,26 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  Badge,
-  Button,
-  Card,
-  CardHeader,
-  Input,
-  MessageBar,
-  MessageBarBody,
-  Select,
-  Spinner,
-  Text,
-  Title2,
-} from "@fluentui/react-components";
+import { useNavigate } from "react-router-dom";
+import { Badge, Button, Input, MessageBar, MessageBarBody, Select, Spinner, Text } from "@fluentui/react-components";
 import { SearchRegular, ThumbLikeFilled, ThumbLikeRegular } from "@fluentui/react-icons";
 import { api, ApiError, errorMessage, votedStore } from "../api/client";
+import { PlatformBadge } from "../components/Qualification";
 import type { PublicIdea } from "../types";
 
+type Sort = "newest" | "votes";
+
 export default function Browse() {
+  const navigate = useNavigate();
   const [ideas, setIdeas] = useState<PublicIdea[] | null>(null);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [department, setDepartment] = useState("");
+  const [platform, setPlatform] = useState("");
+  const [sort, setSort] = useState<Sort>("newest");
   const [voted, setVoted] = useState(() => votedStore.get());
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -32,12 +27,14 @@ export default function Browse() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return (ideas ?? []).filter(
+    const list = (ideas ?? []).filter(
       (i) =>
         (!department || i.department === department) &&
+        (!platform || i.qualification.platform === platform) &&
         (!q || [i.title, i.problem, i.desiredOutcome, i.dataSources].some((t) => t.toLowerCase().includes(q))),
     );
-  }, [ideas, query, department]);
+    return sort === "votes" ? [...list].sort((a, b) => b.votes - a.votes) : list;
+  }, [ideas, query, department, platform, sort]);
 
   function markVoted(id: string) {
     votedStore.add(id);
@@ -61,20 +58,33 @@ export default function Browse() {
 
   return (
     <div className="stack">
-      <Title2>Browse & vote</Title2>
-      <div className="row">
+      <div className="page-header">
+        <h1>Browse & vote</h1>
+        <Text className="muted">Upvote the ideas you'd most like to see built. Hover a platform badge to see why it was suggested.</Text>
+      </div>
+
+      <div className="toolbar">
         <Input
           contentBefore={<SearchRegular />}
           placeholder="Search ideas"
           value={query}
           onChange={(_, d) => setQuery(d.value)}
-          style={{ minWidth: 280 }}
+          className="toolbar-search"
         />
-        <Select value={department} onChange={(_, d) => setDepartment(d.value)}>
+        <Select value={department} onChange={(_, d) => setDepartment(d.value)} aria-label="Department">
           <option value="">All departments</option>
           {departments.map((d) => (
             <option key={d}>{d}</option>
           ))}
+        </Select>
+        <Select value={platform} onChange={(_, d) => setPlatform(d.value)} aria-label="Platform">
+          <option value="">All platforms</option>
+          <option value="agent-builder">M365 Agent Builder</option>
+          <option value="copilot-studio">Copilot Studio</option>
+        </Select>
+        <Select value={sort} onChange={(_, d) => setSort(d.value as Sort)} aria-label="Sort">
+          <option value="newest">Newest first</option>
+          <option value="votes">Most votes</option>
         </Select>
       </div>
 
@@ -84,52 +94,69 @@ export default function Browse() {
         </MessageBar>
       )}
       {!ideas && !error && <Spinner label="Loading ideas..." />}
-      {ideas && filtered.length === 0 && <Text>No ideas yet. Be the first to share one!</Text>}
+      {ideas && filtered.length === 0 && (
+        <div className="empty-state">
+          <Text size={500} weight="semibold">
+            {ideas.length ? "No ideas match your filters" : "No ideas yet"}
+          </Text>
+          <Button appearance="primary" onClick={() => navigate("/submit")}>
+            Share the first idea
+          </Button>
+        </div>
+      )}
 
       <div className="cards">
         {filtered.map((idea) => {
           const hasVoted = voted.has(idea.id);
           return (
-            <Card key={idea.id}>
-              <CardHeader
-                header={<Text weight="semibold" size={500}>{idea.title}</Text>}
-                description={
-                  <Text size={200} className="muted">
-                    {idea.submittedBy || "Anonymous"} · {new Date(idea.createdAt).toLocaleDateString()}
-                  </Text>
-                }
-              />
+            <article key={idea.id} className="idea-card">
+              <div className="idea-card-top">
+                <PlatformBadge qualification={idea.qualification} />
+                <Badge appearance="tint" color="brand">
+                  {idea.department}
+                </Badge>
+              </div>
+              <h3>{idea.title}</h3>
+              <div>
+                <Text weight="semibold" size={200} className="label">
+                  Problem
+                </Text>
+                <Text as="p" className="prewrap clamp">
+                  {idea.problem}
+                </Text>
+              </div>
+              <div>
+                <Text weight="semibold" size={200} className="label">
+                  Desired outcome
+                </Text>
+                <Text as="p" className="prewrap clamp">
+                  {idea.desiredOutcome}
+                </Text>
+              </div>
               <div className="row">
-                <Badge appearance="tint">{idea.department}</Badge>
                 <Badge appearance="outline">{idea.frequency}</Badge>
                 <Badge appearance="outline">{idea.usersAffected} users</Badge>
+                <Badge appearance="outline">{idea.qualification.complexity} complexity</Badge>
               </div>
-              <Text weight="semibold">Problem</Text>
-              <Text className="prewrap">{idea.problem}</Text>
-              <Text weight="semibold">Desired outcome</Text>
-              <Text className="prewrap">{idea.desiredOutcome}</Text>
-              {idea.currentProcess && (
-                <>
-                  <Text weight="semibold">Today</Text>
-                  <Text className="prewrap">{idea.currentProcess}</Text>
-                </>
-              )}
               {idea.dataSources && (
                 <Text size={200} className="muted prewrap">
                   Data / systems: {idea.dataSources}
                 </Text>
               )}
-              <div className="row">
+              <div className="idea-card-footer">
+                <Text size={200} className="muted">
+                  {idea.submittedBy || "Anonymous"} · {new Date(idea.createdAt).toLocaleDateString()}
+                </Text>
                 <Button
                   appearance={hasVoted ? "primary" : "secondary"}
                   icon={hasVoted ? <ThumbLikeFilled /> : <ThumbLikeRegular />}
                   disabled={hasVoted || busy === idea.id}
                   onClick={() => vote(idea.id)}
                 >
-                  {hasVoted ? "Voted" : "Upvote"} ({idea.votes})
+                  {idea.votes}
                 </Button>
               </div>
-            </Card>
+            </article>
           );
         })}
       </div>

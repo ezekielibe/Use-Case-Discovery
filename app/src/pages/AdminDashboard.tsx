@@ -21,6 +21,7 @@ import {
 } from "@fluentui/react-components";
 import { ArrowDownloadRegular, ArrowSyncRegular, EyeOffRegular, EyeRegular, SignOutRegular } from "@fluentui/react-icons";
 import { adminSession, api, ApiError, errorMessage } from "../api/client";
+import { PlatformBadge, QualificationCard } from "../components/Qualification";
 import { formatScore, previewScore } from "../scoring";
 import type { AdminIdea, AppConfig, Ratings } from "../types";
 
@@ -140,6 +141,9 @@ export default function AdminDashboard() {
                       <Text size={200} className="muted">
                         {idea.department}
                       </Text>
+                      <div style={{ marginTop: 4 }}>
+                        <PlatformBadge qualification={idea.qualification} />
+                      </div>
                       {idea.status === "hidden" && (
                         <Badge color="danger" appearance="tint" style={{ marginLeft: 8 }}>
                           Hidden
@@ -222,9 +226,10 @@ function ScorePanel({ idea, config, onSaved, onError }: ScorePanelProps) {
     <div className="stack">
       <Title3>{idea.title}</Title3>
       <Text size={200} className="muted">
-        {idea.department} · {idea.submittedBy || "Anonymous"}
-        {idea.email && ` · ${idea.email}`} · {idea.frequency} · {idea.usersAffected} users
+        {idea.department} · {idea.submittedBy || "Anonymous"} · {idea.frequency} · {idea.usersAffected} users
+        {idea.audience && ` · ${idea.audience}`}
       </Text>
+      <QualificationCard qualification={idea.qualification} />
       <Text weight="semibold">Problem</Text>
       <Text className="prewrap">{idea.problem}</Text>
       <Text weight="semibold">Desired outcome</Text>

@@ -1,22 +1,22 @@
 import { HttpError } from "./http";
+import { AUDIENCES, CAPABILITIES } from "./qualification";
 import { CRITERIA, type Ratings } from "./scoring";
 
 export const FREQUENCIES = ["Daily", "Weekly", "Monthly", "Quarterly", "Ad hoc"];
 export const USERS_AFFECTED = ["1-10", "11-50", "51-200", "201-1000", "1000+"];
 
 const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
-const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
+const CAPABILITY_KEYS: string[] = CAPABILITIES.map((c) => c.key);
 
 export function cleanText(value: unknown): string {
   return typeof value === "string" ? value.replace(CONTROL_CHARS, "").trim() : "";
 }
 
-const TEXT_FIELDS = ["name", "email", "department", "title", "problem", "desiredOutcome", "currentProcess", "dataSources"] as const;
+const TEXT_FIELDS = ["name", "department", "title", "problem", "desiredOutcome", "currentProcess", "dataSources"] as const;
 type TextField = (typeof TEXT_FIELDS)[number];
 
 const TEXT_RULES: Record<TextField, { max: number; required?: boolean }> = {
   name: { max: 100 },
-  email: { max: 200 },
   department: { max: 100, required: true },
   title: { max: 120, required: true },
   problem: { max: 2000, required: true },
@@ -25,7 +25,12 @@ const TEXT_RULES: Record<TextField, { max: number; required?: boolean }> = {
   dataSources: { max: 1000 },
 };
 
-export type IdeaInput = Record<TextField, string> & { frequency: string; usersAffected: string };
+export type IdeaInput = Record<TextField, string> & {
+  frequency: string;
+  usersAffected: string;
+  audience: string;
+  capabilities: string;
+};
 
 export function validateIdea(body: Record<string, unknown>): IdeaInput {
   // Honeypot field: hidden from humans, usually filled by bots.
@@ -40,15 +45,19 @@ export function validateIdea(body: Record<string, unknown>): IdeaInput {
     else if (value.length > rule.max) errors[field] = `Maximum ${rule.max} characters`;
     values[field] = value;
   }
-  if (values.email && !EMAIL_RE.test(values.email)) errors.email = "Enter a valid email address";
-
   const frequency = cleanText(body.frequency);
   if (!FREQUENCIES.includes(frequency)) errors.frequency = "Select how often this happens";
   const usersAffected = cleanText(body.usersAffected);
   if (!USERS_AFFECTED.includes(usersAffected)) errors.usersAffected = "Select how many users are affected";
+  const audience = cleanText(body.audience);
+  if (audience && !AUDIENCES.includes(audience)) errors.audience = "Select who will use the agent";
+  const capabilities = Array.isArray(body.capabilities) ? body.capabilities : [];
+  if (capabilities.some((c) => typeof c !== "string" || !CAPABILITY_KEYS.includes(c))) {
+    errors.capabilities = "Invalid capability selected";
+  }
 
   if (Object.keys(errors).length) throw new HttpError(400, "Please fix the highlighted fields", errors);
-  return { ...values, frequency, usersAffected };
+  return { ...values, frequency, usersAffected, audience, capabilities: [...new Set(capabilities)].join(",") };
 }
 
 export function validateScore(body: Record<string, unknown>): { ratings: Ratings; comment: string } {

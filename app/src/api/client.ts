@@ -1,4 +1,4 @@
-import type { AdminIdea, AppConfig, IdeaInput, LeaderboardEntry, PublicIdea, Ratings } from "../types";
+import type { AdminIdea, AppConfig, IdeaInput, LeaderboardEntry, PublicIdea, Qualification, Ratings } from "../types";
 
 export class ApiError extends Error {
   constructor(
@@ -87,7 +87,8 @@ const id = (value: string) => encodeURIComponent(value);
 export const api = {
   config: () => getJson<AppConfig>("config"),
   ideas: () => getJson<PublicIdea[]>("ideas"),
-  submitIdea: (input: IdeaInput) => getJson<{ id: string }>("ideas", { method: "POST", body: JSON.stringify(input) }),
+  submitIdea: (input: IdeaInput) =>
+    getJson<{ id: string; qualification: Qualification }>("ideas", { method: "POST", body: JSON.stringify(input) }),
   vote: async (ideaId: string) => {
     await call(`ideas/${id(ideaId)}/vote`, { method: "POST" });
   },

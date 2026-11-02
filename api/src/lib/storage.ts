@@ -1,5 +1,6 @@
 import { RestError, TableClient, odata } from "@azure/data-tables";
 import { requireEnv, workshopId } from "./http";
+import { qualify } from "./qualification";
 import { CRITERIA, type Ratings } from "./scoring";
 
 export type TableName = "Ideas" | "Votes" | "Scores" | "RateLimits";
@@ -48,7 +49,8 @@ export interface IdeaEntity {
   dataSources: string;
   department: string;
   name: string;
-  email: string;
+  audience?: string;
+  capabilities?: string;
   status: "visible" | "hidden";
   createdAt: string;
 }
@@ -89,6 +91,12 @@ export function toRatings(score: ScoreEntity): Ratings {
   return Object.fromEntries(CRITERIA.map((c) => [c.key, score[c.key]])) as Ratings;
 }
 
+const splitCapabilities = (value?: string) => (value ? value.split(",").filter(Boolean) : []);
+
+export function qualifyIdea(idea: IdeaEntity) {
+  return qualify({ ...idea, capabilities: splitCapabilities(idea.capabilities) });
+}
+
 export function toPublicIdea(idea: IdeaEntity, votes: number) {
   return {
     id: idea.rowKey,
@@ -101,7 +109,10 @@ export function toPublicIdea(idea: IdeaEntity, votes: number) {
     dataSources: idea.dataSources,
     department: idea.department,
     submittedBy: idea.name,
+    audience: idea.audience ?? "",
+    capabilities: splitCapabilities(idea.capabilities),
     createdAt: idea.createdAt,
     votes,
+    qualification: qualifyIdea(idea),
   };
 }

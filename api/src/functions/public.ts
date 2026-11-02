@@ -10,12 +10,14 @@ import {
   isStatus,
   listIdeas,
   listScores,
+  qualifyIdea,
   table,
   toPublicIdea,
   toRatings,
   voteCounts,
 } from "../lib/storage";
 import { FREQUENCIES, USERS_AFFECTED, validateIdea } from "../lib/validation";
+import { AUDIENCES, CAPABILITIES } from "../lib/qualification";
 
 app.http("getConfig", {
   methods: ["GET"],
@@ -28,6 +30,8 @@ app.http("getConfig", {
       voteWeight: VOTE_WEIGHT,
       frequencies: FREQUENCIES,
       usersAffected: USERS_AFFECTED,
+      audiences: AUDIENCES,
+      capabilities: CAPABILITIES,
     }),
   ),
 });
@@ -62,7 +66,7 @@ app.http("submitIdea", {
       createdAt: new Date().toISOString(),
     };
     await (await table("Ideas")).createEntity(entity);
-    return json(201, { id: entity.rowKey });
+    return json(201, { id: entity.rowKey, qualification: qualifyIdea(entity) });
   }),
 });
 
@@ -107,6 +111,7 @@ app.http("leaderboard", {
           id: i.rowKey,
           title: i.title,
           department: i.department,
+          qualification: qualifyIdea(i),
           votes: votes.get(i.rowKey) ?? 0,
           ratings: scores.filter((s) => s.ideaId === i.rowKey).map(toRatings),
         })),

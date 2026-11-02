@@ -12,11 +12,22 @@ export interface AppConfig {
   voteWeight: number;
   frequencies: string[];
   usersAffected: string[];
+  audiences: string[];
+  capabilities: { key: string; label: string }[];
+}
+
+export type Platform = "agent-builder" | "copilot-studio";
+
+export interface Qualification {
+  platform: Platform;
+  platformLabel: string;
+  confidence: "High" | "Medium" | "Low";
+  complexity: "Low" | "Medium" | "High";
+  reasons: string[];
 }
 
 export interface IdeaInput {
   name: string;
-  email: string;
   department: string;
   title: string;
   problem: string;
@@ -25,6 +36,8 @@ export interface IdeaInput {
   frequency: string;
   usersAffected: string;
   dataSources: string;
+  audience: string;
+  capabilities: string[];
   website: string;
 }
 
@@ -39,14 +52,18 @@ export interface PublicIdea {
   dataSources: string;
   department: string;
   submittedBy: string;
+  audience: string;
+  capabilities: string[];
   createdAt: string;
   votes: number;
+  qualification: Qualification;
 }
 
 export interface LeaderboardEntry {
   id: string;
   title: string;
   department: string;
+  qualification: Qualification;
   votes: number;
   facilitatorScore: number | null;
   voteScore: number;
@@ -66,7 +83,6 @@ export interface FacilitatorScore {
 }
 
 export interface AdminIdea extends PublicIdea {
-  email: string;
   status: "visible" | "hidden";
   scores: FacilitatorScore[];
   facilitatorScore: number | null;

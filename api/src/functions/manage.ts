@@ -37,7 +37,6 @@ async function buildAdminIdeas() {
     const ideaScores = scores.filter((s) => s.ideaId === i.rowKey);
     return {
       ...toPublicIdea(i, votes.get(i.rowKey) ?? 0),
-      email: i.email,
       status: i.status,
       ratings: ideaScores.map(toRatings),
       scores: ideaScores.map((s) => ({
@@ -121,13 +120,16 @@ app.http("adminExport", {
     requireAdmin(req);
     const ideas = await buildAdminIdeas();
     const header = [
-      "Rank", "Title", "Department", "Submitted By", "Email", "Problem", "Desired Outcome", "Current Process",
-      "Frequency", "Users Affected", "Data Sources", "Votes", "Facilitator Score", "Vote Score", "Final Score",
-      "Number of Scores", "Facilitator Comments", "Status", "Created At",
+      "Rank", "Title", "Department", "Submitted By", "Problem", "Desired Outcome", "Current Process",
+      "Frequency", "Users Affected", "Audience", "Capabilities", "Data Sources", "Recommended Platform",
+      "Platform Confidence", "Complexity", "Qualification Reasons", "Votes", "Facilitator Score", "Vote Score",
+      "Final Score", "Number of Scores", "Facilitator Comments", "Status", "Created At",
     ];
     const rows = ideas.map((i) => [
-      i.rank ?? "", i.title, i.department, i.submittedBy, i.email, i.problem, i.desiredOutcome, i.currentProcess,
-      i.frequency, i.usersAffected, i.dataSources, i.votes, i.facilitatorScore ?? "", i.voteScore, i.finalScore ?? "",
+      i.rank ?? "", i.title, i.department, i.submittedBy, i.problem, i.desiredOutcome, i.currentProcess,
+      i.frequency, i.usersAffected, i.audience, i.capabilities.join("; "), i.dataSources,
+      i.qualification.platformLabel, i.qualification.confidence, i.qualification.complexity,
+      i.qualification.reasons.join("; "), i.votes, i.facilitatorScore ?? "", i.voteScore, i.finalScore ?? "",
       i.scores.length, i.scores.filter((s) => s.comment).map((s) => `${s.facilitator}: ${s.comment}`).join(" | "),
       i.status, i.createdAt,
     ]);
