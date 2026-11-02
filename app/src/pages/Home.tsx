@@ -10,6 +10,7 @@ import {
   TrophyRegular,
 } from "@fluentui/react-icons";
 import { api } from "../api/client";
+import HeroRobot from "../components/HeroRobot";
 import { PLATFORM_INFO, PlatformIcon } from "../components/Qualification";
 import type { Platform, PublicIdea } from "../types";
 
@@ -41,6 +42,7 @@ export default function Home() {
   return (
     <div className="stack-lg">
       <section className="hero">
+        <div className="hero-text">
         <span className="eyebrow">
           <SparkleRegular /> Use Case Discovery Workshop
         </span>
@@ -65,6 +67,8 @@ export default function Home() {
             Browse & vote
           </Button>
         </div>
+        </div>
+        <HeroRobot />
       </section>
 
       {stats && (
