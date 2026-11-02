@@ -67,7 +67,7 @@ Run the API tests with `cd api && npm test`.
    - API location: `api`
    - Output location: `dist`
 
-   Azure adds the `AZURE_STATIC_WEB_APPS_API_TOKEN` secret to the repo. The workflow in [.github/workflows/azure-static-web-apps.yml](.github/workflows/azure-static-web-apps.yml) builds, tests and deploys on every push to `main`.
+   Azure adds the `AZURE_STATIC_WEB_APPS_API_TOKEN` secret to the repo. The workflow in [.github/workflows/azure-static-web-apps.yml](.github/workflows/azure-static-web-apps.yml) builds, tests and deploys on every push to `master`.
 3. In the Static Web App, open **Settings → Environment variables** and add:
 
    | Name | Value |
