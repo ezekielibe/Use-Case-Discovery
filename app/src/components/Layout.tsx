@@ -17,7 +17,7 @@ export default function Layout() {
         <div className="brand">
           <BotSparkleRegular fontSize={28} />
           <Text weight="semibold" size={500}>
-            Copilot Studio Use Case Discovery
+            AI Agent Use Case Discovery Workshop
           </Text>
         </div>
         <nav className="nav">

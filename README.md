@@ -1,6 +1,6 @@
 # Use-Case-Discovery
 
-A public web app for running a **Copilot Studio Use Case Discovery workshop**. Attendees share ideas for agents and upvote other people's ideas without signing in. Facilitators score each idea against weighted criteria to find the most promising ones to build.
+A public web app for running an **AI Agent Use Case Discovery Workshop**. Attendees share ideas for agents and upvote other people's ideas without signing in. Facilitators score each idea against weighted criteria to find the most promising ones to build.
 
 ## Features
 
