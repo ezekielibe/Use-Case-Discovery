@@ -128,8 +128,13 @@ export default function Submit() {
           <span className="section-num">1</span> About you
         </h2>
         <div className="grid-2">
-          <Field label="Your name" validationMessage={errors.name} hint="Optional, shown with your idea">
-            <Input value={form.name} onChange={update("name")} maxLength={100} />
+          <Field label="Your name" validationMessage={errors.name}>
+            <Input
+              value={form.name}
+              onChange={update("name")}
+              maxLength={100}
+              placeholder="Optional, shown with your idea"
+            />
           </Field>
           <Field label="Department / Organization" required validationMessage={errors.department}>
             <Input value={form.department} onChange={update("department")} maxLength={100} />
