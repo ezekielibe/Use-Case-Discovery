@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
+    "ADMIN_PASSCODE": "change-me-before-use",
+    "TOKEN_SECRET": "replace-with-a-random-string-of-at-least-32-chars",
+    "HASH_SALT": "replace-with-a-different-random-string",
+    "WORKSHOP_ID": "default"
+  }
+}
