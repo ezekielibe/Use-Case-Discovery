@@ -117,18 +117,14 @@ export default function Browse() {
                 </Badge>
               </div>
               <h3>{idea.title}</h3>
-              <div>
-                <Text weight="semibold" size={200} className="label">
-                  Problem
-                </Text>
+              <div className="idea-section">
+                <div className="label">Problem</div>
                 <Text as="p" className="prewrap clamp">
                   {idea.problem}
                 </Text>
               </div>
-              <div>
-                <Text weight="semibold" size={200} className="label">
-                  Desired outcome
-                </Text>
+              <div className="idea-section">
+                <div className="label">Desired outcome</div>
                 <Text as="p" className="prewrap clamp">
                   {idea.desiredOutcome}
                 </Text>

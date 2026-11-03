@@ -612,7 +612,17 @@ h3 {
 }
 
 .idea-card p {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
+}
+
+.idea-section .label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.idea-section + .idea-section {
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
 }
 
 .idea-card-top {
