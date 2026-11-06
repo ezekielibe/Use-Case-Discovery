@@ -57,7 +57,19 @@ h3 {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
   color: var(--brand);
+}
+
+.brand-logo {
+  display: block;
+  flex-shrink: 0;
+}
+
+.brand-logo img {
+  display: block;
+  width: 104px;
+  height: auto;
 }
 
 .brand span {

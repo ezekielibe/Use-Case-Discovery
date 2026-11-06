@@ -1,6 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { Text } from "@fluentui/react-components";
-import { BotSparkleRegular } from "@fluentui/react-icons";
 
 const links = [
   { to: "/", label: "Home", end: true },
@@ -15,7 +14,9 @@ export default function Layout() {
     <div className="shell">
       <header className="header">
         <div className="brand">
-          <BotSparkleRegular fontSize={28} />
+          <NavLink to="/" className="brand-logo" aria-label="KONE home">
+            <img src="/kone-logo.svg" alt="KONE" width={104} height={41} />
+          </NavLink>
           <Text weight="semibold" size={500}>
             AI Agent Use Case Discovery Workshop
           </Text>
